@@ -64,13 +64,17 @@ score = 0
 # Carga de imágenes
 sky = pygame.image.load("gif.gif").convert_alpha()
 sky = pygame.transform.scale(sky, (800, 400))
-ground = pygame.image.load("ground2.xcf").convert_alpha()
-ground = pygame.transform.scale(ground, (800, 150))
+ground = pygame.image.load("ground6.xcf").convert_alpha()
+ground = pygame.transform.scale(ground, (800, 100))
 
 character = pygame.image.load("gato_1.xcf").convert_alpha()
 character = pygame.transform.scale(character, (60, 60))
 character = pygame.transform.flip(character, True, False)
 character_rect = character.get_rect(midbottom=(2000, 330))
+
+#snowy
+snowy = pygame.image.load("Back_1.gif").convert_alpha()
+snowy = pygame.transform.scale(snowy,(800,400))
 
 # Erizo
 character_1 = pygame.image.load("personaje_1.1.xcf").convert_alpha()
@@ -134,9 +138,9 @@ player_stand = pygame.transform.scale(player_stand, (300, 300))
 player_stand_rect = player_stand.get_rect(center=(400, 200))
 
 text = fonty.render("Try Again", False, (0, 0, 0))
-text_rect = text.get_rect(center=(200, 200))
+text_rect = text.get_rect(center=(200, 250))
 text_2 = fonty.render("Press Space", False, (0, 0, 0))
-text_rect_2 = text.get_rect(center=(600, 200))
+text_rect_2 = text.get_rect(center=(600, 250))
 
 obstacle_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(obstacle_timer, 1987)
@@ -147,7 +151,7 @@ pygame.time.set_timer(Erizo_animation_timer, 500)
 Pajaro_animation_timer = pygame.USEREVENT + 3
 pygame.time.set_timer(Pajaro_animation_timer, 200)
 
-speed_increase_timer = pygame.USEREVENT + 10
+speed_increase_timer = pygame.USEREVENT 
 pygame.time.set_timer(speed_increase_timer, 800)  # Cada 1000 milisegundos (1 segundo)
 
 # Audios
@@ -235,13 +239,13 @@ while True:
             obstacle_speed = 5
 
     else:
-        screen.fill((86, 101, 115))
+        screen.blit(snowy,(0,0))
         screen.blit(player_stand, player_stand_rect)
         obstacle_rect_list.clear()
         player_rect.midbottom = (80, 350)
         player_gravity = 0
 
-        score_message = fonty.render(f"Score: {score}", False, (255, 255, 255))
+        score_message = fonty.render(f"Score: {score}", False, (0, 0, 0))
         score_message_rect = score_message.get_rect(center=(400, 380))
         screen.blit(score_message, score_message_rect)
         screen.blit(text, text_rect)
@@ -249,4 +253,4 @@ while True:
         pygame.mixer.music.fadeout(2000)
 
     pygame.display.update()
-    Clock.tick(50)
+    Clock.tick(60)
