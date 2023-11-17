@@ -25,6 +25,12 @@ def obstacle_movement(obstacle_list):
     else:
         return []
 
+def spawn_obstacle():
+    if randint(0, 2):
+        return character_2.get_rect(midbottom=(randint(900, 1200), randint(150, 220))), obstacle_speed
+    else:
+        return character_1.get_rect(midbottom=(randint(900, 1200), 320)), obstacle_speed
+
 def collisions(player, obstacles):
     if obstacles:
         for obstacle_rect, _ in obstacles:
@@ -56,9 +62,9 @@ start_time = 0
 score = 0
 
 # Carga de imágenes
-sky = pygame.image.load("ciel.webp").convert_alpha()
-sky = pygame.transform.scale(sky, (800, 450))
-ground = pygame.image.load("ground.xcf").convert_alpha()
+sky = pygame.image.load("gif.gif").convert_alpha()
+sky = pygame.transform.scale(sky, (800, 400))
+ground = pygame.image.load("ground2.xcf").convert_alpha()
 ground = pygame.transform.scale(ground, (800, 150))
 
 character = pygame.image.load("gato_1.xcf").convert_alpha()
@@ -106,7 +112,7 @@ obstacle_rect_list = []
 
 player_surface_1 = pygame.image.load("Racoon_1.xcf").convert_alpha()
 player_surface_2 = pygame.image.load("Racoon_2.xcf").convert_alpha()
-player_surface_3 = pygame.image.load("Racoon_3.xcf").convert_alpha()
+player_surface_3 = pygame.image.load("Racoon_1.xcf").convert_alpha()
 
 player_surface_2 = pygame.transform.scale(player_surface_2, (85, 85))
 player_surface_1 = pygame.transform.scale(player_surface_1, (85, 85))
@@ -119,7 +125,7 @@ player_surface_4 = pygame.transform.scale(player_surface_4, (85, 85))
 
 player_surf = player_walk[player_index]
 player_rect = player_surf.get_rect(midbottom=(80, 300))
-player_gravity = 1
+player_gravity = 2
 player_rect.height = 60
 player_rect.width = 60
 
@@ -135,17 +141,32 @@ text_rect_2 = text.get_rect(center=(600, 200))
 obstacle_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(obstacle_timer, 1987)
 
-Erizo_animation_timer = pygame.USEREVENT + 2
+Erizo_animation_timer = pygame.USEREVENT + 4
 pygame.time.set_timer(Erizo_animation_timer, 500)
 
 Pajaro_animation_timer = pygame.USEREVENT + 3
 pygame.time.set_timer(Pajaro_animation_timer, 200)
 
-speed_increase_timer = pygame.USEREVENT + 4
-pygame.time.set_timer(speed_increase_timer, 1000)  # Cada 1000 milisegundos (1 segundo)
+speed_increase_timer = pygame.USEREVENT + 10
+pygame.time.set_timer(speed_increase_timer, 800)  # Cada 1000 milisegundos (1 segundo)
+
+# Audios
+pygame.mixer.init()  # Inicializar el módulo mixer
+musica_fondo = pygame.mixer.music.load("music_1.mp3")
+musica_fondo = pygame.mixer_music.play(-1)
+
+## Salto
 
 # Velocidad inicial de los obstáculos
-obstacle_speed = 3
+obstacle_speed = 5
+
+# Velocidad de fondo
+background_speed = 2
+background_x = 0
+
+# Velocidad de suelo
+ground_speed = 10
+ground_x = 0
 
 # Bucle principal
 while True:
@@ -161,13 +182,11 @@ while True:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 game_active = True
                 start_time = int(pygame.time.get_ticks() / 1000)
+                pygame.mixer.music.play(-1)  # Volver a reproducir la música al comenzar una nueva partida
 
         if game_active:
             if event.type == obstacle_timer:
-                if randint(0, 2):
-                    obstacle_rect_list.append((character_2.get_rect(midbottom=(randint(900, 1200), randint(150, 220))), obstacle_speed))
-                else:
-                    obstacle_rect_list.append((character_1.get_rect(midbottom=(randint(900, 1200), 320)), obstacle_speed))
+                obstacle_rect_list.append(spawn_obstacle())
 
             if event.type == Erizo_animation_timer:
                 Erizo_frames_index = (Erizo_frames_index + 1) % len(Erizo_frames)
@@ -179,11 +198,21 @@ while True:
 
             if event.type == speed_increase_timer:
                 # Aumentar la velocidad cada segundo
-                obstacle_speed += 0.5
+                obstacle_speed += 0.4
 
     if game_active:
-        screen.blit(sky, (0, 0))
-        screen.blit(ground, (0, 300))
+        # Actualizar la posición del fondo y suelo
+        background_x -= background_speed
+        ground_x -= ground_speed
+
+        # Dibujar el cielo
+        screen.blit(sky, (background_x % sky.get_width() - sky.get_width(), 0))
+        screen.blit(sky, (background_x % sky.get_width(), 0))
+
+        # Dibujar el suelo
+        screen.blit(ground, (ground_x % ground.get_width() - ground.get_width(), 300))
+        screen.blit(ground, (ground_x % ground.get_width(), 300))
+
         score = display_score()
         display_score()
 
@@ -217,6 +246,7 @@ while True:
         screen.blit(score_message, score_message_rect)
         screen.blit(text, text_rect)
         screen.blit(text_2, text_rect_2)
+        pygame.mixer.music.fadeout(2000)
 
     pygame.display.update()
     Clock.tick(50)
